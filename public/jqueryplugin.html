@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="form.css">
+</head>
+
+<body>
+
+    <style>
+        .error{
+            color: red;
+            font-size: 0.875rem;
+            margin-top: 5px;
+            display: block;
+        }
+        /* Ensure radio buttons are displayed horizontally */
+         .form-check-input {
+            display: inline-block;
+        }
+    </style>
+<div class="crd">
+    <form class="mt-2" action="" id="frm">
+        <div class="mt-2">
+            <label for="">Name:</label>
+            <textarea class="form-control" name="name" id="name"></textarea>
+
+        </div>
+        <div class="mt-2">
+            <label for="">Age:</label>
+            <input class="form-control" id="dob" type="date" name="dob" required>
+
+        </div>
+        <div class="mt-2">
+            <label for="" id="">Gender:</label>
+            <input class="form-check-input" type="radio" name="Gender" value="Male">
+            <label for="">Male</label>
+            <input class="form-check-input" type="radio" name="Gender" value="Female">
+            <label for="">Female</label>
+            <input class="form-check-input" type="radio" name="Gender" value="other">
+            <label for="" id="gender">other</label>
+        </div>
+        <div class="mt-2">
+            <label for="">Department:</label>
+            <select class="form-select" name="department" id="department">
+                <option value="">Select a Department</option> 
+                <option value="CSE">CSE</option>
+                <option value="Mechanical">Mechanical</option>
+                <option value="Civil">Civil</option>
+                <option value="EEE">EEE</option>
+                <option value="ECE">ECE</option>
+            </select>
+
+        </div>
+        <div class="mt-2">
+            <label for="">Email:</label>
+            <input class="form-control" id="email" name="email" type="email" placeholder="@example.com">
+
+        </div>
+        <div class="mt-2">
+            <label for="">Mobile No:</label>
+            <input class="form-control" id="phone" name="phone" type="text">
+
+        </div>
+        <div class="text-center mt-4">
+
+            <button class="btn btn-primary" type="submit" onclick="store(event)">Submit</button>
+            <button class="btn btn-primary" type="button" onclick="fetch()">Fetch</button>
+        </div>
+    </form>
+    <div class="text-center mt-4">
+        <form action="/logout" method="POST">
+            <button class="btn btn-danger" type="submit">Logout</button>
+        </form>
+    </div>
+</div>
+
+    <p id="print"></p>
+    <!-- <script src="js/jquery.validate.min.js"></script> -->
+    <script>
+        let result = [];
+
+
+        function cleardata() {
+            document.getElementById("name").value = "";
+            document.getElementById("dob").value = "";
+            // document.getElementById("gender").value = "";
+            document.getElementById("department").value = "";
+            document.getElementById("email").value = "";
+            document.getElementById("phone").value = "";
+            let genderRadios = document.querySelectorAll('input[name="Gender"]');
+            genderRadios.forEach(radio => {
+                radio.checked = false;
+            });
+        }
+        function store(e) {
+            e.preventDefault(); // Prevent form submission until validation is done
+
+            // Manually trigger validation
+            // Proceed with storing data only if validation passes
+            if ($('#frm').valid()) {
+                // Display confirmation dialog before proceeding
+                const isConfirmed = confirm("Do you want to submit the form?");
+
+                if (isConfirmed) {
+                    // Proceed with storing data only if the user clicks "OK"
+                    let data = {
+                        name: document.getElementById("name").value,
+                        dob: document.getElementById("dob").value,
+                        gender: document.querySelector('input[name="Gender"]:checked') ? document.querySelector('input[name="Gender"]:checked').value : '',
+                        department: document.querySelector('select').value,
+                        email: document.getElementById("email").value,
+                        mobileno: document.getElementById("phone").value,
+                        // persondetails: []
+                    }
+
+ 
+                    data.dob = calculateAge(data.dob);
+                    console.log(data);
+                    result.push(data);
+                    console.log(result);
+                    // Clear form data after successful validation and storing
+                    cleardata();
+                }
+                // else {
+                // If user clicks "Cancel", do nothing and return
+                // console.log("Submission canceled.");
+                // }
+
+                function calculateAge(dob) {
+                    const today = new Date();
+                    const birthDate = new Date(dob);
+                    let age = today.getFullYear() - birthDate.getFullYear();
+                    const monthDifference = today.getMonth() - birthDate.getMonth();
+                    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+                        age--;
+                    }
+                    return age;
+                }
+            }
+        }
+
+        function fetch() {
+            let text = "<table class='table table-dark table-striped mt-2'><tr><th>Name</th><th>Age</th><th>Gender</th><th>Department</th><th>Email</th><th>Mobile No</th></tr>";
+            for (let i = 0; i < result.length; i++) {
+                text += "<tr><td>" + result[i].name + "</td><td>" + result[i].dob + "</td><td>" + result[i].gender + "</td><td>" + result[i].department + "</td><td>" + result[i].email + "</td><td>" + result[i].mobileno + "</td></tr>";
+            }
+            text += "</table>"
+            document.getElementById("print").innerHTML = text;
+        }
+
+
+
+        $(document).ready(function () {
+            $('#frm').validate({ // initialize the plugin
+                rules: {
+                    name: {
+                        required: true,
+                    },
+                    dob: {
+                        required: true,
+                        // validDate: true // Apply custom validation for dob
+                    },
+                    Gender: {
+                        required: true
+                    },
+                    department: {
+                        required: true
+                    },
+                    email: { 
+                        required: true,
+                        email: true
+                    },
+                    phone: {
+                        required: true,
+                        digits:true,
+                        minlength: 10,
+                        maxlength: 10, 
+                    }
+                },
+                messages: {
+                    name: {
+                        required: "please enter your name"
+                    },
+                    dob: {
+                        required: "please enter your dob"
+                    },
+                    Gender: {
+                        required: "please enter your gender"
+                    },
+                    department: {
+                        required: "please select your department"
+                    },
+                    email: {
+                        required: "please enter your email"
+                    },
+                    phone: {
+                        required: "please enter your mobile no",
+                        minlength: "enter 10 digit mobile no",
+                        maxlength: "mobile no must be 10 digit"
+                    }
+                },
+                errorPlacement: function (error, element) {
+                    if (element.attr("name") === "Gender") {
+                        error.insertAfter("#gender"); // Custom placement for gender error
+                    } else {
+                        error.insertAfter(element); // Default placement for other fields
+                    }
+                },
+                // submitHandler: function (form) {
+                //     // Handle form submission
+                //     store(event);
+                // }
+            });
+
+        });
+    </script>
+
+
+</body>
+
+</html>
